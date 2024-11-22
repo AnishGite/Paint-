@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Living Canvas</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono&display=swap');
+        
+        body {
+            font-family: 'Space Mono', monospace;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        #toolbar {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(30, 30, 60, 0.7);
+            padding: 15px;
+            border-radius: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            backdrop-filter: blur(15px);
+            margin-bottom: 20px;
+            border: 2px solid rgba(100,100,200,0.2);
+            animation: pulse 3s infinite alternate;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.02); }
+        }
+        #colorPickerContainer {
+            position: relative;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            transition: all 0.5s ease;
+            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
+            perspective: 1000px;
+        }
+        #colorPickerContainer:hover {
+            transform: rotateY(180deg);
+        }
+        #colorPicker {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        #colorDisplay {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(#ff6b6b, #4ecdc4, #45b7d1, #ff6b6b);
+            transition: all 0.5s ease;
+        }
+        #brushSizeContainer {
+            display: flex;
+            align-items: center;
+            background: rgba(50, 50, 100, 0.5);
+            border-radius: 30px;
+            padding: 8px 15px;
+            box-shadow: inset 0 4px 6px rgba(0,0,0,0.2);
+        }
+        #brushSize {
+            -webkit-appearance: none;
+            width: 150px;
+            height: 8px;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            border-radius: 10px;
+            outline: none;
+            margin-right: 10px;
+            position: relative;
+        }
+        #brushSize::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 25px;
+            height: 25px;
+            background: #fff;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border: 3px solid #6a11cb;
+            transition: transform 0.3s ease;
+        }
+        #brushSize::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        #brushSizeDisplay {
+            font-weight: bold;
+            color: #45b7d1;
+            text-shadow: 0 0 5px rgba(69,183,209,0.5);
+        }
+        .toolbar-btn {
+            background: rgba(69, 183, 209, 0.2);
+            border: 2px solid rgba(69, 183, 209, 0.5);
+            padding: 10px;
+            border-radius: 50%;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            color: #45b7d1;
+            position: relative;
+            overflow: hidden;
+        }
+        .toolbar-btn:hover {
+            transform: rotate(360deg);
+            background: rgba(69, 183, 209, 0.4);
+        }
+        .toolbar-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255,255,255,0.1);
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+            opacity: 0;
+        }
+        .toolbar-btn:hover::before {
+            opacity: 1;
+        }
+        canvas {
+            background: linear-gradient(135deg, rgba(50,50,100,0.8), rgba(30,30,60,0.8));
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            cursor: crosshair;
+            transition: all 0.5s ease;
+            border: 3px solid rgba(100,100,200,0.2);
+        }
+        canvas:hover {
+            transform: scale(1.01) rotate(1deg);
+            box-shadow: 0 25px 70px rgba(0,0,0,0.5);
+        }
+        select {
+            background: rgba(50, 50, 100, 0.5);
+            color: #45b7d1;
+            border: 2px solid rgba(69, 183, 209, 0.3);
+            border-radius: 30px;
+            padding: 8px 15px;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        select:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div id="toolbar">
+        <select id="toolSelect">
+            <option value="brush">🖌️ Brush</option>
+            <option value="eraser">❌ Eraser</option>
+            <option value="line">➖ Line</option>
+            <option value="rectangle">▭ Rectangle</option>
+            <option value="circle">⭕ Circle</option>
+        </select>
+        
+        <div id="colorPickerContainer">
+            <div id="colorDisplay"></div>
+            <input type="color" id="colorPicker" value="#45b7d1">
+        </div>
+        
+        <div id="brushSizeContainer">
+            <input type="range" id="brushSize" min="1" max="50" value="5">
+            <span id="brushSizeDisplay">5</span>
+        </div>
+        
+        <button id="clearBtn" class="toolbar-btn">🧹</button>
+        <button id="saveBtn" class="toolbar-btn">💾</button>
+        <button id="undoBtn" class="toolbar-btn">↩️</button>
+    </div>
+    <canvas id="drawingCanvas" width="800" height="600"></canvas>
+
+    <script>
+        // Entire previous script remains unchanged
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        const colorPicker = document.getElementById('colorPicker');
+        const colorDisplay = document.getElementById('colorDisplay');
+        const brushSize = document.getElementById('brushSize');
+        const brushSizeDisplay = document.getElementById('brushSizeDisplay');
+        const clearBtn = document.getElementById('clearBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const undoBtn = document.getElementById('undoBtn');
+        const toolSelect = document.getElementById('toolSelect');
+
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        let currentTool = 'brush';
+        let history = [];
+
+        colorPicker.addEventListener('input', () => {
+            colorDisplay.style.backgroundColor = colorPicker.value;
+        });
+
+        function saveCanvasState() {
+            history.push(canvas.toDataURL());
+            if (history.length > 10) history.shift();
+        }
+
+        brushSize.addEventListener('input', () => {
+            brushSizeDisplay.textContent = brushSize.value;
+        });
+
+        function startDrawing(e) {
+            isDrawing = true;
+            saveCanvasState();
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            ctx.strokeStyle = currentTool === 'eraser' ? 'rgba(255,255,255,0.8)' : colorPicker.value;
+            ctx.lineWidth = brushSize.value;
+            ctx.lineCap = 'round';
+
+            switch (currentTool) {
+                case 'brush':
+                case 'eraser':
+                    ctx.beginPath();
+                    ctx.moveTo(lastX, lastY);
+                    ctx.lineTo(e.offsetX, e.offsetY);
+                    ctx.stroke();
+                    [lastX, lastY] = [e.offsetX, e.offsetY];
+                    break;
+
+                case 'line':
+                case 'rectangle':
+                case 'circle':
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    const img = new Image();
+                    img.src = history[history.length - 1];
+                    img.onload = () => {
+                        ctx.drawImage(img, 0, 0);
+                        
+                        ctx.beginPath();
+                        switch (currentTool) {
+                            case 'line':
+                                ctx.moveTo(lastX, lastY);
+                                ctx.lineTo(e.offsetX, e.offsetY);
+                                break;
+                            case 'rectangle':
+                                ctx.rect(lastX, lastY, e.offsetX - lastX, e.offsetY - lastY);
+                                break;
+                            case 'circle':
+                                const radius = Math.sqrt(
+                                    Math.pow(e.offsetX - lastX, 2) + 
+                                    Math.pow(e.offsetY - lastY, 2)
+                                );
+                                ctx.arc(lastX, lastY, radius, 0, 2 * Math.PI);
+                                break;
+                        }
+                        ctx.stroke();
+                    };
+                    break;
+            }
+        }
+
+        function stopDrawing(e) {
+            if (!isDrawing) return;
+            
+            isDrawing = false;
+
+            if (['line', 'rectangle', 'circle'].includes(currentTool)) {
+                ctx.beginPath();
+                ctx.strokeStyle = colorPicker.value;
+                ctx.lineWidth = brushSize.value;
+                
+                switch (currentTool) {
+                    case 'line':
+                        ctx.moveTo(lastX, lastY);
+                        ctx.lineTo(e.offsetX, e.offsetY);
+                        break;
+                    case 'rectangle':
+                        ctx.rect(lastX, lastY, e.offsetX - lastX, e.offsetY - lastY);
+                        break;
+                    case 'circle':
+                        const radius = Math.sqrt(
+                            Math.pow(e.offsetX - lastX, 2) + 
+                            Math.pow(e.offsetY - lastY, 2)
+                        );
+                        ctx.arc(lastX, lastY, radius, 0, 2 * Math.PI);
+                        break;
+                }
+                ctx.stroke();
+            }
+        }
+
+        function clearCanvas() {
+            saveCanvasState();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function saveCanvas() {
+            const link = document.createElement('a');
+            link.download = 'artwork.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        function undoLast() {
+            if (history.length > 1) {
+                history.pop();
+                const img = new Image();
+                img.src = history[history.length - 1];
+                img.onload = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
+                };
+            }
+        }
+
+        colorDisplay.style.backgroundColor = colorPicker.value;
+        saveCanvasState();
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+        clearBtn.addEventListener('click', clearCanvas);
+        saveBtn.addEventListener('click', saveCanvas);
+        undoBtn.addEventListener('click', undoLast);
+        toolSelect.addEventListener('change', (e) => {
+            currentTool = e.target.value;
+        });
+    </script>
+</body>
+</html>
