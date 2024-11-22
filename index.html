@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <title>Living Canvas</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Mono&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand&display=swap');
         
         body {
-            font-family: 'Space Mono', monospace;
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #F5E6D3, #E6D2C2);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -17,23 +17,29 @@
             padding: 20px;
             min-height: 100vh;
             overflow: hidden;
+            color: #4A4A4A;
         }
         #toolbar {
             display: flex;
             align-items: center;
             gap: 15px;
-            background: rgba(30, 30, 60, 0.7);
+            background: rgba(245, 240, 230, 0.7);
             padding: 15px;
             border-radius: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 30px rgba(180,150,120,0.3);
             backdrop-filter: blur(15px);
             margin-bottom: 20px;
-            border: 2px solid rgba(100,100,200,0.2);
+            border: 2px solid rgba(210,180,140,0.2);
             animation: pulse 3s infinite alternate;
+            transition: all 0.5s ease;
         }
         @keyframes pulse {
             0% { transform: scale(1); }
             100% { transform: scale(1.02); }
+        }
+        #toolbar:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(180,150,120,0.4);
         }
         #colorPickerContainer {
             position: relative;
@@ -41,9 +47,9 @@
             height: 70px;
             border-radius: 50%;
             overflow: hidden;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 20px rgba(180,150,120,0.3);
+            background: linear-gradient(45deg, #D2B48C, #DEB887);
             transition: all 0.5s ease;
-            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
             perspective: 1000px;
         }
         #colorPickerContainer:hover {
@@ -62,36 +68,34 @@
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            background: conic-gradient(#ff6b6b, #4ecdc4, #45b7d1, #ff6b6b);
+            background: conic-gradient(#D2B48C, #DEB887, #D2B48C);
             transition: all 0.5s ease;
         }
         #brushSizeContainer {
             display: flex;
             align-items: center;
-            background: rgba(50, 50, 100, 0.5);
+            background: rgba(230, 220, 210, 0.5);
             border-radius: 30px;
             padding: 8px 15px;
-            box-shadow: inset 0 4px 6px rgba(0,0,0,0.2);
+            box-shadow: inset 0 4px 6px rgba(180,150,120,0.2);
         }
         #brushSize {
             -webkit-appearance: none;
             width: 150px;
             height: 8px;
-            background: linear-gradient(to right, #6a11cb, #2575fc);
+            background: linear-gradient(to right, #D2B48C, #DEB887);
             border-radius: 10px;
             outline: none;
             margin-right: 10px;
-            position: relative;
         }
         #brushSize::-webkit-slider-thumb {
             -webkit-appearance: none;
             width: 25px;
             height: 25px;
-            background: #fff;
+            background: #8B4513;
             cursor: pointer;
             border-radius: 50%;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            border: 3px solid #6a11cb;
+            box-shadow: 0 4px 10px rgba(180,150,120,0.3);
             transition: transform 0.3s ease;
         }
         #brushSize::-webkit-slider-thumb:hover {
@@ -99,23 +103,23 @@
         }
         #brushSizeDisplay {
             font-weight: bold;
-            color: #45b7d1;
-            text-shadow: 0 0 5px rgba(69,183,209,0.5);
+            color: #8B4513;
+            text-shadow: 0 0 5px rgba(139,69,19,0.3);
         }
         .toolbar-btn {
-            background: rgba(69, 183, 209, 0.2);
-            border: 2px solid rgba(69, 183, 209, 0.5);
+            background: rgba(210, 180, 140, 0.2);
+            border: 2px solid rgba(210, 180, 140, 0.5);
             padding: 10px;
             border-radius: 50%;
             transition: all 0.4s ease;
             cursor: pointer;
-            color: #45b7d1;
+            color: #8B4513;
             position: relative;
             overflow: hidden;
         }
         .toolbar-btn:hover {
             transform: rotate(360deg);
-            background: rgba(69, 183, 209, 0.4);
+            background: rgba(210, 180, 140, 0.4);
         }
         .toolbar-btn::before {
             content: '';
@@ -133,25 +137,26 @@
             opacity: 1;
         }
         canvas {
-            background: linear-gradient(135deg, rgba(50,50,100,0.8), rgba(30,30,60,0.8));
+            background: linear-gradient(135deg, rgba(245,240,230,0.8), rgba(230,220,210,0.8));
             border-radius: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            box-shadow: 0 20px 60px rgba(180,150,120,0.4);
             cursor: crosshair;
+            border: 3px solid rgba(210,180,140,0.2);
             transition: all 0.5s ease;
-            border: 3px solid rgba(100,100,200,0.2);
         }
         canvas:hover {
             transform: scale(1.01) rotate(1deg);
-            box-shadow: 0 25px 70px rgba(0,0,0,0.5);
+            box-shadow: 0 25px 70px rgba(180,150,120,0.5);
         }
         select {
-            background: rgba(50, 50, 100, 0.5);
-            color: #45b7d1;
-            border: 2px solid rgba(69, 183, 209, 0.3);
+            background: rgba(230, 220, 210, 0.5);
+            color: #8B4513;
+            border: 2px solid rgba(210, 180, 140, 0.3);
             border-radius: 30px;
             padding: 8px 15px;
             outline: none;
             cursor: pointer;
+            font-family: 'Quicksand', sans-serif;
             transition: all 0.3s ease;
         }
         select:hover {
@@ -160,6 +165,7 @@
     </style>
 </head>
 <body>
+    <!-- Entire previous HTML remains the same -->
     <div id="toolbar">
         <select id="toolSelect">
             <option value="brush">🖌️ Brush</option>
@@ -171,7 +177,7 @@
         
         <div id="colorPickerContainer">
             <div id="colorDisplay"></div>
-            <input type="color" id="colorPicker" value="#45b7d1">
+            <input type="color" id="colorPicker" value="#D2B48C">
         </div>
         
         <div id="brushSizeContainer">
@@ -186,7 +192,7 @@
     <canvas id="drawingCanvas" width="800" height="600"></canvas>
 
     <script>
-        // Entire previous script remains unchanged
+        // Previous JavaScript remains unchanged (same as last version)
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
         const colorPicker = document.getElementById('colorPicker');
@@ -223,6 +229,7 @@
             [lastX, lastY] = [e.offsetX, e.offsetY];
         }
 
+        // Rest of the script remains the same as in the previous version
         function draw(e) {
             if (!isDrawing) return;
             
